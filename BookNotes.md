@@ -51,6 +51,56 @@ Table of contents:
 
 ## Chapter 2: Deep Learning
 
+- Deep Learning = Deep Neural Networks, i.e., ANNs with more than 1 hidden layer.
+- Structured vs. unstructured data:
+  - Structured data is tabular data, with features already extracted.
+  - Unstructured data have high dimensionality and features are not extracted: images, text, audio, etc.
+- DL works very nicely with unstructured data and is able to extract automatically features from it!
+- Concepts of a ANN
+  - Layers, units, weights, activation functions
+  - MLP = Multi-Layer Perceptron = fully connected layer.
+  - Forward pass
+  - Training: backpropagation
+  - Evaluation, inference
+- Example: MLP for CIFAR-10 classification using Keras (32x32x3 images and 10 classes)
+  - Keras: Sequential vs. Functional API
+  - Steps:
+    - Normalize image tensors
+    - One-hot-encode labels
+    - Train and test splits
+    - Model definition
+      - Flattening of tensors
+      - Layers: Dense, Activation (ReLU, LeakyReLU, Softmax)
+      - Batch size defined online
+      - Counting parameters: mind the bias!
+    - Loss functions
+      - Regression: Mean Square Error, Mean Absolute Error
+      - Classification: Binary cross-entropy, Categorical Cross-entropy
+    - Optimizers: usually, only learning rate is modified
+      - Adam
+      - RMSProp
+    - Training
+      - Random initialization of weights
+      - Epochs
+      - Metrics: accuracy, loss
+    - Evaluation: Compute metrics with test set (unseen)
+- Example: CNN for CIFAR-10 classification using Keras (32x32x3 images and 10 classes)
+  - CNNs: 
+    - in a fully connected layer, image data is flattened, so we loose spatial information
+    - in a CNN the spatial information is preserved, plus, we have less parameters!
+  - Convolution, kernel, filter
+    - Stride, padding, depth / channels
+    - Note: if we apply to (32,32,3) a 10-channel filter of size (4,4):
+      - Output image has 10 channels
+      - We have 10 filters of size 4x4x3, so (4x4x3 + 1(bias))x10 = 490 parameters
+  - Batch normalization
+    - Exploding gradient
+    - Normalization of batches
+    - Scale, shift, moving average, moving variance
+    - Smoother gradients
+  - Dropout: random de-activation of units only during training to achieve regularization
+  - A CNN will usually achieve a much better accuracy on images than a MLP; it also has usually less parameters!
+
 ## Chapter 3: Variational Autoencoders
 
 ## Chapter 4: Generative Adversarial Networks (GANs)
