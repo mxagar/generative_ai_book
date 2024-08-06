@@ -8,6 +8,11 @@ The official code repository for the second edition of the O'Reilly book *Genera
 
 <img src="img/book_cover.png" width="300px">
 
+:warning: **IMPORTANT notes (by Mikel Sagardia):**
+
+- **I have my personal notes on the book in [`BookNotes.md`](./BookNotes.md).**
+- **The content of this repository (esp. the notebooks) might be altered after my tests.**
+
 ## 📖 Book Chapters
 
 Below is a outline of the book chapters:
