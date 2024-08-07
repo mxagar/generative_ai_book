@@ -5,6 +5,7 @@ These are my notes of the book [Generative Deep Learning, 2nd Edition, by David 
 Table of contents:
 
 - [Generative Deep Learning: My Notes](#generative-deep-learning-my-notes)
+  - [Setup](#setup)
   - [Chapter 1: Generative Modeling](#chapter-1-generative-modeling)
   - [Chapter 2: Deep Learning](#chapter-2-deep-learning)
   - [Chapter 3: Variational Autoencoders](#chapter-3-variational-autoencoders)
@@ -19,6 +20,12 @@ Table of contents:
   - [Chapter 12: World Models](#chapter-12-world-models)
   - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
   - [Chapter 14: Conclusion](#chapter-14-conclusion)
+
+## Setup
+
+There is a guide to set up GCP VMs in [`docs/googlecloud.md`](./docs/googlecloud.md); however, I used Google Colab, mainly with T4 GPUs.
+
+The necessary installation/downloads are locally noted in each notebook.
 
 ## Chapter 1: Generative Modeling
 
