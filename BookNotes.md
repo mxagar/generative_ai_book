@@ -7,8 +7,12 @@ Table of contents:
 - [Generative Deep Learning: My Notes](#generative-deep-learning-my-notes)
   - [Setup](#setup)
   - [Chapter 1: Generative Modeling](#chapter-1-generative-modeling)
+    - [Key points](#key-points)
   - [Chapter 2: Deep Learning](#chapter-2-deep-learning)
+    - [Key points](#key-points-1)
   - [Chapter 3: Variational Autoencoders](#chapter-3-variational-autoencoders)
+    - [Key points](#key-points-2)
+    - [List of papers](#list-of-papers)
   - [Chapter 4: Generative Adversarial Networks (GANs)](#chapter-4-generative-adversarial-networks-gans)
   - [Chapter 5: Autoregressive Models](#chapter-5-autoregressive-models)
   - [Chapter 6: Normalizing Flow Models](#chapter-6-normalizing-flow-models)
@@ -34,7 +38,21 @@ There is a guide to set up GCP VMs in [`docs/googlecloud.md`](./docs/googlecloud
 
 The necessary installation/downloads are locally noted in each notebook.
 
+In each notebook opened in Colab, we need to run the following commands in the beginning:
+
+```python
+# Run these lines in Colab
+!git clone https://github.com/mxagar/generative_ai_book.git
+!mkdir notebooks
+!mkdir chekpoint
+!mkdir outputs
+!mkdir models
+!mv generative_ai_book/notebooks/utils.py ./notebooks/utils.py
+```
+
 ## Chapter 1: Generative Modeling
+
+### Key points
 
 - Discriminative vs. generative models
   - Discriminative models: p(y|X), probability of a label y given some observation X.
@@ -64,6 +82,8 @@ The necessary installation/downloads are locally noted in each notebook.
     - GANs
 
 ## Chapter 2: Deep Learning
+
+### Key points
 
 - Deep Learning = Deep Neural Networks, i.e., ANNs with more than 1 hidden layer.
 - Structured vs. unstructured data:
@@ -116,6 +136,14 @@ The necessary installation/downloads are locally noted in each notebook.
   - A CNN will usually achieve a much better accuracy on images than a MLP; it also has usually less parameters!
 
 ## Chapter 3: Variational Autoencoders
+
+### Key points
+
+
+
+### List of papers
+
+- VAE (Kingma, 2013): [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114).
 
 ## Chapter 4: Generative Adversarial Networks (GANs)
 
