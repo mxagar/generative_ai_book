@@ -21,6 +21,13 @@ Table of contents:
   - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
   - [Chapter 14: Conclusion](#chapter-14-conclusion)
 
+See also:
+
+- [mxagar/tool_guides/hugging_face](https://github.com/mxagar/tool_guides/tree/master/hugging_face)
+- [mxagar/generative_ai_udacity](https://github.com/mxagar/generative_ai_udacity)
+- [mxagar/nlp_with_transformers_nbs](https://github.com/mxagar/nlp_with_transformers_nbs)
+- [mxagar/nlp_guide](https://github.com/mxagar/nlp_guide)
+
 ## Setup
 
 There is a guide to set up GCP VMs in [`docs/googlecloud.md`](./docs/googlecloud.md); however, I used Google Colab, mainly with T4 GPUs.
