@@ -10,8 +10,10 @@ Table of contents:
     - [Key points](#key-points)
   - [Chapter 2: Deep Learning](#chapter-2-deep-learning)
     - [Key points](#key-points-1)
+    - [Notebooks](#notebooks)
   - [Chapter 3: Variational Autoencoders](#chapter-3-variational-autoencoders)
     - [Key points](#key-points-2)
+    - [Notebooks](#notebooks-1)
     - [List of papers](#list-of-papers)
   - [Chapter 4: Generative Adversarial Networks (GANs)](#chapter-4-generative-adversarial-networks-gans)
   - [Chapter 5: Autoregressive Models](#chapter-5-autoregressive-models)
@@ -135,11 +137,35 @@ In each notebook opened in Colab, we need to run the following commands in the b
   - Dropout: random de-activation of units only during training to achieve regularization
   - A CNN will usually achieve a much better accuracy on images than a MLP; it also has usually less parameters!
 
+### Notebooks
+
+- [`mlp.ipynb`](./notebooks/02_deeplearning/01_mlp/mlp.ipynb)
+- [`cnn.ipynb`](./notebooks/02_deeplearning/02_cnn/cnn.ipynb)
+
 ## Chapter 3: Variational Autoencoders
+
+In this chapter **Autoencoders** and **Variational Autoencoders** are introduced; the latter improve the properties of the latent space that compresses the data.
 
 ### Key points
 
+- Autoencoders have an encoder-decoder architecture with a bottleneck in the middle, which contains the latent/embedding vectors.
+  - They are usually trained to compress and expand the input data, by optimizing for minimal reconstruction error.
+  - Then, we can use de decoder only to create latent/embedding representations, or the decoder only to generate new unseen data points.
+  - Applications: vectorization, anomaly detection, de-noising.
+- Example of Autoencoder with FashionMNIST dataset: 28x28 grayscale images
+  - Latent vector in the example, z, is 2D; in practice, we'll have more than 2 dimensions, although having too large dimensionalities leads to problems.
+  - Encoder: `Conv2D x3`
+  - Decoder: equivalent to the encoder, but with expansion, for images using `Conv2DTranspose (x3)`
+    - Convolutional transpose layers: the filter is put on a target pixel and multiplied by all cells to create a patch with the filter size; depending on the stride, these patches can overlap, then, cell values are summed.
+    - The output of the last `Conv2DTranspose` is passed to a final `Conv2D` layer.
+  - Loss function: can be RMSE of complete image of pixel-wise binary cross-entropy
+    - RMSE: errors symmetrically/homogeneously penalized.
+    - Binary cross-entropy: extreme errors more heavily penalized; blurrier images.
 
+### Notebooks
+
+- []()
+- []()
 
 ### List of papers
 
