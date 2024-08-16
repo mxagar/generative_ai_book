@@ -161,6 +161,38 @@ In this chapter **Autoencoders** and **Variational Autoencoders** are introduced
   - Loss function: can be RMSE of complete image of pixel-wise binary cross-entropy
     - RMSE: errors symmetrically/homogeneously penalized.
     - Binary cross-entropy: extreme errors more heavily penalized; blurrier images.
+  - Since the model is defined as two sequential encoder and decoder sub-models, we can use
+    - the encoder to create image embeddings,
+    - the decoder to generate new images from random embedding vectors,
+    - all the model to reconstruct the image, i.e., for instance, to de-noise.
+  - Observations of the latent space:
+    - Autoencoders have latent spaces with discontinuities and somewhat arbitrary, i.e., not really uniformly distributed.
+    - Thus, it's difficult to interpolate new images correctly on those spaces.
+    - On the contrary, Variational Autoencoders don't have those issues! Their latent space is more structured and uniformly distributed, so we can interpolate.
+  - Same Example with Variatioanal Autoencoders
+    - Two major changes:
+      - We predict regions/patches in the latent space instead of points, i.e., we predict the mean and standard distribution of a distribution for each observation. In practice: mean and log-variance.
+      - We require those regions to have a location close to the center and a given width; effect: better, more distributed latent space.
+    - For each latent dimension, we obtain two values: `z_mean, z_log_var`.
+    - The different variances of each dimension in latent space are assumed to be independent from each other, i.e., we assume an isotropic, diagonal covariance matrix.
+    - To run a complete forward pass of an observation we need to sample in the latent distribution. Thus, there is a `Sampling` layer.
+      - Reparametrization trick: to enable backpropagation, only one `epsilon` value is randomly generated in a standard distribution and the the mean and variance are adjusted.
+    - The loss function has two components:
+      - Reconstruction loss, as in the regular autoencoder.
+      - The Kullback-Leibler (KL) divergence: how much a probability distribution differs from another; in our case, how much it differs from the standard distribution. The objective would be `z_mean = z_log_var = 0`.
+      - Beta-VAEs use a `beta` hyperparameter to weight between the two losses.
+    - The `training_step` is implemented with the `GradientTape` context, which automatically computes the gradients of the operations.
+  - Example: (Beta-) Variational Autoencoder with CelebA dataset
+    - 200k color images, resized to 32 x 32 pixels.
+    - Labels are present for later, not used during training: glasses, smiling, hat, mustache, etc.
+    - Latent space: 200 dimensions.
+    - Batch normalization used, but apart from that, architecture similar to previous one.
+    - Latent space arithmetics:
+      - Morphing between images is a linear operation with only one varied parameter.
+      - Since we have labels (e.g., smiling), we can compute these feature vectors and add substract them to other images:
+        - `smile_vector = avg(images_smiling) - avg(images_all)`
+        - if we add `smile_vector` to a non-smiling vector, with different scaling factors, the image starts smiling!
+
 
 ### Notebooks
 
