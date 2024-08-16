@@ -6,6 +6,7 @@ Table of contents:
 
 - [Generative Deep Learning: My Notes](#generative-deep-learning-my-notes)
   - [Setup](#setup)
+    - [Google Colab Setup](#google-colab-setup)
   - [Chapter 1: Generative Modeling](#chapter-1-generative-modeling)
     - [Key points](#key-points)
   - [Chapter 2: Deep Learning](#chapter-2-deep-learning)
@@ -40,6 +41,8 @@ There is a guide to set up GCP VMs in [`docs/googlecloud.md`](./docs/googlecloud
 
 The necessary installation/downloads are locally noted in each notebook.
 
+### Google Colab Setup
+
 In each notebook opened in Colab, we need to run the following commands in the beginning:
 
 ```python
@@ -47,9 +50,47 @@ In each notebook opened in Colab, we need to run the following commands in the b
 !git clone https://github.com/mxagar/generative_ai_book.git
 !mkdir notebooks
 !mkdir chekpoint
-!mkdir outputs
+!mkdir data
+!mkdir output
 !mkdir models
 !mv generative_ai_book/notebooks/utils.py ./notebooks/utils.py
+!mv generative_ai_book/notebooks/03_vae/03_vae_faces/vae_utils.py ./notebooks/vae_utils.py
+!pip install python-dotenv
+```
+
+Also, we can install kaggle properly and download the `kaggle.json` to `~/.kaggle`; alternatively, we can set the following environment variables in `.env`:
+
+```bash
+# You can create an account for free and get an API token as follows:
+# kaggle.com > account Settings > API > Create new API token
+KAGGLE_USERNAME=xxx
+KAGGLE_KEY=xxx
+
+# In scripts/downloads.sh we can get the values of each dataset,
+# e.g., faces: jessicali9530 celeba-dataset
+KAGGLE_DATASET_USER=jessicali9530
+KAGGLE_DATASET=celeba-dataset
+```
+
+The variables `KAGGLE_DATASET_USER` and `KAGGLE_DATASET` refer to the datasets we'd like to download, if necessary (see `./scripts/download.sh`).
+
+If we use the `.env` file, then we need to load it:
+
+```python
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from the .env file
+load_dotenv()
+```
+
+And finally, we need to download the proper dataset, if required:
+
+```python
+import os
+os.system("cd data/ && kaggle datasets download -d $KAGGLE_DATASET_USER/$KAGGLE_DATASET")
+!unzip -q -o data/$KAGGLE_DATASET.zip -d data/$KAGGLE_DATASET
+!rm data/$KAGGLE_DATASET.zip
 ```
 
 ## Chapter 1: Generative Modeling
@@ -196,8 +237,9 @@ In this chapter **Autoencoders** and **Variational Autoencoders** are introduced
 
 ### Notebooks
 
-- []()
-- []()
+- [`autoencoder.ipynb`](./notebooks/03_vae/01_autoencoder/autoencoder.ipynb)
+- [`vae_fashion.ipynb`](./notebooks/03_vae/02_vae_fashion/vae_fashion.ipynb)
+- [`vae_faces.ipynb`](./notebooks/03_vae/03_vae_faces/vae_faces.ipynb)
 
 ### List of papers
 
