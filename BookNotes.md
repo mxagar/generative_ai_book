@@ -277,8 +277,27 @@ In this chapter **Autoencoders** and **Variational Autoencoders** are introduced
     - Both phases are alternated
     - D and G are fighting for dominance, thus, the learning curves and the training might seem unstable.
       - If the D is dominating, we can reduce its weight by introducing some incorrect labels, i.e., noise. This is called **label smoothing**. It generally improves the stability of the training.
+  - GAN Training tips: GANs are notoriously difficult to train.
+    - Often, the Discriminator becomes too strong, it dominates; if that's the case:
+      - Increase Dropout rate in D.
+      - Reduce learning rate of D.
+      - Reduce convolutional filters in D.
+      - Add noise to labels when training D: flip labels.
+    - Sometimes, the Generator can overpower the Discriminator
+      - The Generator might find a set of images which always fool the Discriminator: mode collapse.
+      - Solution: use the opposite suggestions as explained in the previous point, i.e., strengthen the D.
+    - Uninformative loss: The G is graded against the current D, but the D is improving; thus, the loss value of 2 points in time is not really comparable.
+    - Hyperparameters: GANs are very sensitive to small changes.
+    - An improved implementation which alleviates all those issues is the **Wasserstein GAN**.
+- Wasserstein GAN with Gradient Penalty (WGAN-GP)
+  - This approach introduces a new loss, which alleviates all the aforementioned issues.
+  - The Wasserstein loss is similar to the regular binary cross-entropy loss, but we remove the `log`.
+  - In addition, we need to add/enforce the Lipschitz constraint, i.e., the absolute value of the gradient must be at most 1 everywhere; this is achieved with **Gradient Penalties**.
+  - As a result, we don't need to care about any dominance issues, all learning curves converge.
+- WGAN-GP Example: CelebA dataset, face generation
+  - As compared to VAEs, GANs produce crisper images, better defined; however, GANs are more difficult to train and require longer training times.
+- Conditional GAN (CGAN)
   - 
-
 
 ### Notebooks
 
