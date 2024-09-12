@@ -27,6 +27,9 @@ Table of contents:
     - [Notebooks](#notebooks-3)
     - [List of papers](#list-of-papers-2)
   - [Chapter 6: Normalizing Flow Models](#chapter-6-normalizing-flow-models)
+    - [Key points](#key-points-5)
+    - [Notebooks](#notebooks-4)
+    - [List of papers](#list-of-papers-3)
   - [Chapter 7: Energy-Based Models](#chapter-7-energy-based-models)
   - [Chapter 8: Diffusion Models](#chapter-8-diffusion-models)
   - [Chapter 9: Transformers](#chapter-9-transformers)
@@ -454,6 +457,53 @@ This chapter contains two autoregressive models:
 - PixelCNN (van den Oord et al., 2016): [Pixel Recurrent Neural Networks](https://arxiv.org/abs/1601.06759v3)
 
 ## Chapter 6: Normalizing Flow Models
+
+### Key points
+
+In an nutshell, and in my own words:
+
+Normalizing Flow Models were presented for the first time in the RealNVP paper (2017). The idea behind is very similar to the Variational Autoencoder, but we have two new important properties:
+
+1. Instead of having 2 independent submodels (encoder and decoder), there's **only one which is invertible**.
+2. The **latent space** they generate can have the shape we would like, **usually a Gaussian**. That makes the latent representations much more controllable (recall that was the advantage of the Variational Autoencoders wrt. the Autoencoders alone); thus, we can create new images/samples much better.
+
+To achieve these new properties, the architecture is constructed as a series of variable changes (the input vector `x` would be the variable which is mapped to `z = f(x)`); these changes are performed so that we can compute the inverse variable change very easily:
+
+- The variable changes apply `scale + translate` operations with factors/parameters that are obtained from layers/mappings with learned weights.
+- One of the key aspects to obtain the inverse variable function `x = g(z)` is the determinant of the Jacobian of the variable change (`J = [dz/dx]`). For large variable dimensions (e.g., images), this is very expensive to compute. However, by alternating the parts of the variable where the change is applied in sequential layers, the Jacobian becomes lower triangular, so the determinant is the product of its diagonal!
+
+In the book the *two moons* dataset it used: 2D points that form 2 arcs. The 2D points are converted to a Gaussian scatterplot and back.
+
+The model is composed by **coupling layers** stacked one after the other:
+
+- Input: variable `x`.
+- Then, a series of coupling layers, each performing a variable change `z = f(x)` using the previous input.
+- In each coupling layer, the dimension of the input is increased (e.g., from 2 to 256 in the example) for some hidden layers (e.g., 5) and finally reduced to the same dimension as the input.
+
+Each coupling layer:
+
+- Takes `x[:d]` and computes the vectors `s` and `t` with a learned mapping (linear, convolution, etc.).
+- The rest `x[d:]` is scaled and shifted with `s` and `t`.
+- The `z` is the concatenation of:
+  - the unchanged `x[:d]`; it's like **masking the part `[:d]`**
+  - the changed part `x[d:].*s + t`
+
+The masked region `[:d]` used to obtain `s` and `t` is alternated from one coupling layer to the next: `[:d], [d:], [:d], ...`.
+
+The final vector should have a Gaussian distribution.
+
+The inverse network is very easy to compute: just undo the scale & translate from compound layer to compound layer.
+
+The loss contains the determinant of the Jacobian, which is simply a product of the diagonal values.
+
+### Notebooks
+
+- [`realnvp.ipynb`](./notebooks/06_normflow/01_realnvp/realnvp.ipynb)
+
+### List of papers
+
+- RealNVP (Dihn et al., 2017): [Density estimation using Real NVP](https://arxiv.org/pdf/1605.08803)
+- GLOW (Diedrick et al., 2018): [Glow: Generative Flow with Invertible 1x1 Convolutions](https://arxiv.org/abs/1807.03039)
 
 ## Chapter 7: Energy-Based Models
 
