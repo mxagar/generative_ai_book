@@ -31,6 +31,9 @@ Table of contents:
     - [Notebooks](#notebooks-4)
     - [List of papers](#list-of-papers-3)
   - [Chapter 7: Energy-Based Models](#chapter-7-energy-based-models)
+    - [Key points](#key-points-6)
+    - [Notebook](#notebook)
+    - [List of papers](#list-of-papers-4)
   - [Chapter 8: Diffusion Models](#chapter-8-diffusion-models)
   - [Chapter 9: Transformers](#chapter-9-transformers)
   - [Chapter 10: Advanced GANs](#chapter-10-advanced-gans)
@@ -506,6 +509,52 @@ The loss contains the determinant of the Jacobian, which is simply a product of 
 - GLOW (Diedrick et al., 2018): [Glow: Generative Flow with Invertible 1x1 Convolutions](https://arxiv.org/abs/1807.03039)
 
 ## Chapter 7: Energy-Based Models
+
+### Key points
+
+I think the chapter is not that easy to understand, or at least, I was a bit confused.
+
+I will try to summarize the most important points here.
+
+In energy-based models, a network `E(x)` is trained to output:
+
+- low scores that lead to `p(x) ~ 1` for dataset/likely observation;
+- high scores that lead to `p(x) ~ 0` for unlikely observations.
+
+The probability `p(x)` is modeled by the Boltzman distribution:
+
+`p(x) = exp(-E(x)) / int(x, exp(-E(x)))`
+
+The neural network is in practice an energy function `E(x)` which 
+
+- takes as input an tensor `x`
+- and outputs a scalar in `[-inf, inf]`.
+
+In the chapter example, the MNIST dataset is used, so the image tensors are converted to an energy value in `[-inf, inf]` passing through some convolutional layers that use the swish activation function (a smooth ReLU).
+
+Two central questions need to be addresse; with all the definitions done so far
+
+1. How do we sample new images with low energy score? Langevin dynamics is used for that.
+2. How can we deal with the intractable integral of the `p(x)`? Contrastive divergende is used for that.
+
+**Langevin dynamics** is used to sample new images or `x` tensors. During training, instead of computing the gradient of the loss function wrt. the network parameters, now:
+
+- we keep the network parameters fixed
+- and we compute the gradient of the output wrt. the input `x`.
+- Then, we update the input (initially random) in the direction of the negative gradient in several steps.
+- Thus, we obtain an image which has low energy score, i.e., it is likely.
+
+The training is done using **contrastive divergence**. This technique achieves to write the loss function as a function of the energy and without the intractable integral in the Boltzman energy distribution.
+
+In the notebook a `generate_sample()` function is defined which is able to iteratively generate a realistic sample from a noise tensor.
+
+### Notebook
+
+[`ebm.ipynb`](./notebooks/07_ebm/01_ebm/ebm.ipynb)
+
+### List of papers
+
+- Energy Based Models (Du et al., 2019): [Implicit Generation and Generalization in Energy-Based Models](https://arxiv.org/abs/1903.08689)
 
 ## Chapter 8: Diffusion Models
 
