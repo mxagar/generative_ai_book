@@ -558,6 +558,7 @@ In the notebook a `generate_sample()` function is defined which is able to itera
 
 ## Chapter 8: Diffusion Models
 
+
 ## Chapter 9: Transformers
 
 ## Chapter 10: Advanced GANs
