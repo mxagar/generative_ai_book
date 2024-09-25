@@ -35,8 +35,17 @@ Table of contents:
     - [Notebook](#notebook)
     - [List of papers](#list-of-papers-4)
   - [Chapter 8: Diffusion Models](#chapter-8-diffusion-models)
+    - [Key points](#key-points-7)
+    - [Notebooks](#notebooks-5)
+    - [List of papers and links](#list-of-papers-and-links)
   - [Chapter 9: Transformers](#chapter-9-transformers)
+    - [Key points](#key-points-8)
+    - [Notebooks](#notebooks-6)
+    - [List of papers and links](#list-of-papers-and-links-1)
   - [Chapter 10: Advanced GANs](#chapter-10-advanced-gans)
+    - [Key points](#key-points-9)
+    - [Notebooks](#notebooks-7)
+    - [List of papers and links](#list-of-papers-and-links-2)
   - [Chapter 11: Music Generation](#chapter-11-music-generation)
   - [Chapter 12: World Models](#chapter-12-world-models)
   - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
@@ -558,10 +567,39 @@ In the notebook a `generate_sample()` function is defined which is able to itera
 
 ## Chapter 8: Diffusion Models
 
+### Key points
+
+### Notebooks
+
+### List of papers and links
+
+- Denoising Diffusion Probabilistic Models (Ho et al., 2020): [Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239)
+  - Original Diffusion paper.
+- Improved Diffusion (Nichol et al.): [Improved Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2102.09672)
+  - Cosine diffusion schedule presented here.
+- Transformers (Vaswani et al.): [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+  - Transformers paper.
+  - Sinusoidal embeddings are presented, but for encoding position.
+- NeRF (Mildenhall et al., 2020): [NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis](https://arxiv.org/abs/2003.08934)
+  - Sinusoidal embeddings that map scalars to n-dimensional vectors are presented.
+- Implicit Diffusion (Song et al., 2020): [Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502)
+  - The deterministic denoising method is presented, with a well defined `t -> t-1` denoising formula.
 
 ## Chapter 9: Transformers
 
+### Key points
+
+### Notebooks
+
+### List of papers and links
+
 ## Chapter 10: Advanced GANs
+
+### Key points
+
+### Notebooks
+
+### List of papers and links
 
 ## Chapter 11: Music Generation
 
