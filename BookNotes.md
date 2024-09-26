@@ -574,20 +574,25 @@ Diffusion models outperform the previous GAN models for image generation.
 
 The core idea is that we train a model which takes
 
-- a noisy image (in the beggining it will be a pure random noise map)
-- and an associated noise variance (in the beginning it will be a high variance value)
+- a noisy image `x_t` (in the beggining it will be a pure random noise map)
+- and an associated noise variance `b_t` (in the beginning it will be a high variance value)
 
-and it predicts the noise map overlaid on the image, so that we can substract it to from the noisy image get the noise-free image.
+and it predicts the noise map `e_t` overlaid on the image, so that we can substract it to from the noisy image get the noise-free image `x_0`.
 
 The process is performed in small, gradual steps, and following a noise rate schedule.
 
 We can differentiate these operation phases:
 
-- During **training**, the original image is modified: we add a noise map related to a variance value to the image and pass the image to a U-Net model which predicts the noise map; the error is backpropagated, so that the model parametrizes the noise contained in an image. This is done gradually in around `T = 1000` steps in which the noise is added following a cosine schedule. The process of gradually adding noise is called **forward diffusion**.
-- During **inference**, the U-Net is used to predict the noise map, starting from a random noise map. In around `T = 20` steps, the noise map is predicted and substracted from the image, feeding the new image (with less noise) to the U-Net again to predict the next noise step. The process of gradually removing noise is called **reverse diffusion** or **denoising**.
+- During **training**, the original image is modified before passing it to the model: we add a noise map related to a variance value to the image and pass the image to a U-Net model which tries to predict the added noise map; the error is backpropagated, so that the model parametrizes the noise contained in an image. This is done gradually in around `T = 1000` steps in which the noise is added following a cosine schedule. The process of gradually adding noise is called **forward diffusion**.
+- During **inference**, the U-Net is used to predict the noise map, starting from a random noise map. In around `T = 20-100` steps, the noise map is predicted and substracted from the image, feeding the new image (with less noise) to the U-Net again to predict the next noise step. The process of gradually removing noise is called **reverse diffusion** or **denoising**.
   - It is possible to interpolate between latent Gaussian noise maps, i.e., first, we blend one noise map into another in `n` steps using a sinusoidan function; then, for blended noise map of a step we run the reverse diffusion function, i.e., the denoising. The result is that the final images interpolate accordingly (also progressively) from one to the other.
 
 We can see that in any operation phase (training, inference) the number of forward passes is linear with the steps taken for adding noise or denoising.
+
+Some corollary notes on training and inference:
+
+- In the forward diffusion process (traning of the U-Net), the noise map (`e_t, epsilon`) is computed from the variance scalar (`b_t, beta`) and added to the image to obtain a noisy image `x_t`. Then, the noisy image is passed to the U-Net. The U-Net tries to guess the noise map, and the prediction error is used to update the weights via backpropagation.
+- In the reverse diffusion process (inference), the noise map is not computed using a formula which depends on the variance, but it is predicted by the U-Net model. Then, this noise map is substracted to the image to remove a noise step from it.
 
 #### More details
 
@@ -618,10 +623,12 @@ Note that
 
 Additionally, `e_t` is exactly what the U-Net model is trying to output given `b_t` and the noisy image!
 
-Diffusion schedules vary the signal and noise ratios in such a way that
+Diffusion schedules vary the signal and noise ratios in such a way that during training
 
 - the signal ratio decreases (i.e., increase the value of `t` in `m(a_t)`) from `1-offset` to 0 following a cosine function
 - and the noise ratio increases from `offset` to 1 folllowing the complementary cosine function.
+
+During inference or image generation the schedule is reversed.
 
 The **reverse diffusion** function `p` removes noise between two consecutive noisy images (`x_(t) -> x_(t-1)`); it has this form:
 
@@ -629,12 +636,22 @@ The **reverse diffusion** function `p` removes noise between two consecutive noi
 
 This **reverse diffusion** function is derived from the reparametrized forward diffusion and other concepts; it has a simple linear form but fractional coefficients dependent on the signal ratio `1 - m(a_t)` and the noise ratio `m(a_t)`. More importantly, **it uses the noise map `e` which is predicted by the trained U-Net, i.e., the U-Net is trained using the forward diffusion to be able to create the necessary noise map value to be substracted in the reverse diffusion.** 
 
+It's worth mentioning that both the forward and reverse diffusion processes are Gaussian, meaning that the noise added in the forward process and removed in the reverse process is Gaussian. This Gaussian structure allows the formulation of the reverse process based on Bayes' theorem.
+
 The **U-Net noise model** has the following properties:
 
-- Input: noisy image `x_t` at step `t`, as well as variance `b_t`
+- Input: noisy image `x_t` at step `t`, as well as variance `b_t`.
+  - The variance scalar is expanded to be a vector using **sinusoidal embedding**. Sinusoidal embedding is basically a `R -> R^n` map which for each unique scalar generates a unique and different vector. It is related to the sinusoidal embedding from the Transformers paper, but there it was used to add positional embeddings. Later, in the NeRF paper, sinusoidal embeddings were modified to map scalars to vectors, as done in the diffusion U-Net model.
+  - The image and the variance vector are concatenated in the beginning of the network.
 - Output: noise map `e_t` corresponding to the input; if we substract `e_t` to the noisy image `x_t` we should obtain the noise-free image `x_0`. However, obviously, that works better if done progressively in the reverse diffusion function.
-- 
+- As in every U-Net, the initial tensor is progressively reduced in spatial size while its channels are increased; then, the reduced vector is expanded to have a bigger spatial size but less channels. The final tensor has the same shape as the input image. The architecture consists of these blocks:
+  - `ResidualBlock`: basic block used everywhere which performs batch normalization and 2 convolutions, while adding a skip connection between input and output, as presented in the ResNet architecture. Residual blocks learn the identity map and allow for deeper network, since the vanishing gradient issue is alleviated.
+  - `DownBlock`: two `ResidualBlocks` are used and an average pooling so that the image size is decreased and the channels are increased.
+  - `UpBlock`: upsampling is applied to the image to increase its spatial size and two `ResidualBlocks` are applied so that the channels are decreased.
+  - Skip connections: the ouput of each `ResidualBlocks` in a `DownBlock` is passed to the associated `UpBlock` with same tensor size, where the tensors are concatenated.
+- Two networks are maintained: the usual one with the weights computed during gradient descend and the *Exponential Moving Average (EMA)* network, which contains the EMA of the weights. The EMA network is not that susceptible to spikes and fluctuations.
 
+![Diffusion Models](./assets/diffusion_models.jpg)
 
 ### Notebooks
 
