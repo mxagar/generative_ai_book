@@ -36,6 +36,7 @@ Table of contents:
     - [List of papers](#list-of-papers-4)
   - [Chapter 8: Diffusion Models](#chapter-8-diffusion-models)
     - [Key points](#key-points-7)
+      - [More details](#more-details)
     - [Notebooks](#notebooks-5)
     - [List of papers and links](#list-of-papers-and-links)
   - [Chapter 9: Transformers](#chapter-9-transformers)
@@ -569,12 +570,84 @@ In the notebook a `generate_sample()` function is defined which is able to itera
 
 ### Key points
 
+Diffusion models outperform the previous GAN models for image generation.
+
+The core idea is that we train a model which takes
+
+- a noisy image (in the beggining it will be a pure random noise map)
+- and an associated noise variance (in the beginning it will be a high variance value)
+
+and it predicts the noise map overlaid on the image, so that we can substract it to from the noisy image get the noise-free image.
+
+The process is performed in small, gradual steps, and following a noise rate schedule.
+
+We can differentiate these operation phases:
+
+- During **training**, the original image is modified: we add a noise map related to a variance value to the image and pass the image to a U-Net model which predicts the noise map; the error is backpropagated, so that the model parametrizes the noise contained in an image. This is done gradually in around `T = 1000` steps in which the noise is added following a cosine schedule. The process of gradually adding noise is called **forward diffusion**.
+- During **inference**, the U-Net is used to predict the noise map, starting from a random noise map. In around `T = 20` steps, the noise map is predicted and substracted from the image, feeding the new image (with less noise) to the U-Net again to predict the next noise step. The process of gradually removing noise is called **reverse diffusion** or **denoising**.
+  - It is possible to interpolate between latent Gaussian noise maps, i.e., first, we blend one noise map into another in `n` steps using a sinusoidan function; then, for blended noise map of a step we run the reverse diffusion function, i.e., the denoising. The result is that the final images interpolate accordingly (also progressively) from one to the other.
+
+We can see that in any operation phase (training, inference) the number of forward passes is linear with the steps taken for adding noise or denoising.
+
+#### More details
+
+The **forward diffusion** function `q` adds the required noise between two consecutive noisy images (`x_(t-1) -> x_(t)`); it is defined as:
+
+    x_t = q(x_t | x_(t-1)) = sqrt(1-b_t) * x_(t-1) + sqrt(b_t) * e_(t-1)
+  
+where
+
+    x: image
+    t: step in noise adding schedule
+    b, beta: variance
+    e, epsilon: Gaussian map with mean 0, standard deviation 1
+
+However, a **reparametrization trick** allows to formulate the function such as any stage of the noisy image (`t`) can be computed from the original, noise-free image (`x_0`):
+
+    x_t = q(x_t | x_0) = sqrt(m(a_t)) * x_0 + sqrt(1 - m(a_t)) * e_t
+
+where
+
+    a_t, alpla_t = 1 - b_t
+    m(a_t) = prod(i=0:t; a_i)
+
+Note that 
+
+- the value `m(a_t)` is the **signal** ratio
+- whereas the `1 - m(a_t)` is the **noise** ratio.
+
+Additionally, `e_t` is exactly what the U-Net model is trying to output given `b_t` and the noisy image!
+
+Diffusion schedules vary the signal and noise ratios in such a way that
+
+- the signal ratio decreases (i.e., increase the value of `t` in `m(a_t)`) from `1-offset` to 0 following a cosine function
+- and the noise ratio increases from `offset` to 1 folllowing the complementary cosine function.
+
+The **reverse diffusion** function `p` removes noise between two consecutive noisy images (`x_(t) -> x_(t-1)`); it has this form:
+
+    x_(t-1) = p(x_(t-1) | x_t) = f(m(a_t); x_t)
+
+This **reverse diffusion** function is derived from the reparametrized forward diffusion and other concepts; it has a simple linear form but fractional coefficients dependent on the signal ratio `1 - m(a_t)` and the noise ratio `m(a_t)`. More importantly, **it uses the noise map `e` which is predicted by the trained U-Net, i.e., the U-Net is trained using the forward diffusion to be able to create the necessary noise map value to be substracted in the reverse diffusion.** 
+
+The **U-Net noise model** has the following properties:
+
+- Input: noisy image `x_t` at step `t`, as well as variance `b_t`
+- Output: noise map `e_t` corresponding to the input; if we substract `e_t` to the noisy image `x_t` we should obtain the noise-free image `x_0`. However, obviously, that works better if done progressively in the reverse diffusion function.
+- 
+
+
 ### Notebooks
+
+Notebook: [`ddm.ipynb`](./notebooks/08_diffusion/01_ddm/ddm.ipynb).
+
+I was able to run part of the notebook on Google Colab; I got RAM error/saturation in the first epoch (approximately in the middle of it) using an L4 GPU.
+
+In the notebook, the Oxford 102 flowers dataset is used, which consists of 8k flower images (in color), which are resized to `64 x 64 x 3` with pixel values in the range `[0,1]`.
 
 ### List of papers and links
 
 - Denoising Diffusion Probabilistic Models (Ho et al., 2020): [Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239)
-  - Original Diffusion paper.
+  - Original Diffusion paper. This paper is implemented, with some improvements from posterior works.
 - Improved Diffusion (Nichol et al.): [Improved Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2102.09672)
   - Cosine diffusion schedule presented here.
 - Transformers (Vaswani et al.): [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
@@ -583,7 +656,7 @@ In the notebook a `generate_sample()` function is defined which is able to itera
 - NeRF (Mildenhall et al., 2020): [NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis](https://arxiv.org/abs/2003.08934)
   - Sinusoidal embeddings that map scalars to n-dimensional vectors are presented.
 - Implicit Diffusion (Song et al., 2020): [Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502)
-  - The deterministic denoising method is presented, with a well defined `t -> t-1` denoising formula.
+  - The deterministic denoising method is presented, with a well defined `t -> t-1` denoising formula; this formula is used.
 
 ## Chapter 9: Transformers
 
