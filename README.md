@@ -18,9 +18,10 @@ Some related repositories of mine:
   - [mxagar/computer_vision_udacity/CVND_Advanced_CV_and_DL.md](https://github.com/mxagar/computer_vision_udacity/blob/main/03_Advanced_CV_and_DL/CVND_Advanced_CV_and_DL.md)
   - [mxagar/deep_learning_udacity/DLND_RNNs.md](https://github.com/mxagar/deep_learning_udacity/blob/main/04_RNN/DLND_RNNs.md)
 
-Table of contents:
+## Table of Contents
 
 - [Generative Deep Learning: My Notes](#generative-deep-learning-my-notes)
+  - [Table of Contents](#table-of-contents)
   - [Setup](#setup)
     - [Google Colab Setup](#google-colab-setup)
   - [Chapter 1: Generative Modeling](#chapter-1-generative-modeling)
