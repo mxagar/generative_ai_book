@@ -14,7 +14,7 @@ Some related repositories of mine:
 - My personal hands-on guide on [LangChain](https://github.com/mxagar/tool_guides/tree/master/langchain)
 - My personal hands-on guide on *"classical"* approaches in [Natural Language Processing (NLP)](https://github.com/mxagar/nlp_guide) 
 - Some personal notes on tools for working with [Large Language Models (LLMs)](https://github.com/mxagar/tool_guides/tree/master/llms)
-- Some personal notes on the bascis of Deep Learning:
+- Some personal notes on the basics of Deep Learning:
   - [mxagar/computer_vision_udacity/CVND_Advanced_CV_and_DL.md](https://github.com/mxagar/computer_vision_udacity/blob/main/03_Advanced_CV_and_DL/CVND_Advanced_CV_and_DL.md)
   - [mxagar/deep_learning_udacity/DLND_RNNs.md](https://github.com/mxagar/deep_learning_udacity/blob/main/04_RNN/DLND_RNNs.md)
 
