@@ -60,15 +60,13 @@ Table of contents:
     - [Notebooks](#notebooks-6)
     - [List of papers and links](#list-of-papers-and-links-1)
   - [Chapter 10: Advanced GANs](#chapter-10-advanced-gans)
-    - [Key points](#key-points-9)
-    - [List of papers and links](#list-of-papers-and-links-2)
   - [Chapter 11: Music Generation](#chapter-11-music-generation)
   - [Chapter 12: World Models](#chapter-12-world-models)
+    - [Key points](#key-points-9)
+    - [List of papers and links](#list-of-papers-and-links-2)
+  - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
     - [Key points](#key-points-10)
     - [List of papers and links](#list-of-papers-and-links-3)
-  - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
-    - [Key points](#key-points-11)
-    - [List of papers and links](#list-of-papers-and-links-4)
   - [Chapter 14: Conclusion](#chapter-14-conclusion)
   - [License](#license)
 
@@ -696,9 +694,35 @@ In the notebook, the Oxford 102 flowers dataset is used, which consists of 8k fl
 
 ## Chapter 10: Advanced GANs
 
-### Key points
+This chapter does not include any notebooks, but it lists several papers and relevant repositories are referenced.
 
-### List of papers and links
+Different aspects that leverage GANs are introduced.
+
+- [ProGAN: Progressive Growing of GANs for Improved Quality, Stability, and Variation (Karras et al., 2017)](https://arxiv.org/abs/1710.10196)
+  - Training performed in stages, starting with 4 x 4 images; then resolution is increased progressively by adding layers.
+  - Discriminator trained with 800k real images.
+  - Different normalization strategies are used, which make the model more stable.
+- [StyleGAN 1 and 2: A Style-Based Generator Architecture for Generative Adversarial Networks (Karras et al., 2018)](https://arxiv.org/abs/1812.04948)
+  - It builds on the the ideas of the ProGAN.
+  - Style transfer can be achieved.
+  - StyleGAN 2 decreased artifacts.
+- [Self-Attention GAN, SAGAN: Self-Attention Generative Adversarial Networks (Zhang et al., 2018)](https://arxiv.org/abs/1805.08318)
+  - A method for teaching attention to ANNs that goes beyond local (CNN kernel) scope.
+  - Convolutional layers learn locally and scale feature sizes; thanks to attention, it's possible to teach ANNs where to focus, given a pixel in the image.
+    - The focus region might be far away in the image.
+- [BigGAN: Large Scale GAN Training for High Fidelity Natural Image Synthesis (Brock et al., 2018)](https://arxiv.org/abs/1809.11096)
+  - Builds on the ideas of the SAGAN.
+  - The latent distribution is a truncated Gaussian; the more extreme the truncation, the believability increases, but the variaty decreases.
+  - The network is bigger than SAGAN.
+- [VQ-GAN: Taming Transformers for High-Resolution Image Synthesis (Esser et al., 2020)](https://arxiv.org/abs/2012.09841)
+  - VQ-GAN: Vector Quantized GAN; it builds the same idea published by the VQ-VAEs, but for GANs.
+  - A *codebook* of discrete latent vectors is learned, i.e., a set of predefined vectors.
+  - Then, each latent vector is mapped to the closest vector in this codebook.
+  - Images are reconstructed from sequences of these quantized vectors, the number of different sequences is so large that the model can generate a virtually infinite number of images.
+  - The vectors in the codebook are like learned concepts.
+  - Despite operating in a discrete latent space, interpolation between discrete latent codes is possible. The model can smoothly transition between different discrete codes, allowing for continuous variation in the generated images.
+- [ViT VQ-GAN: Vector-quantized Image Modeling with Improved VQGAN (Yu et al., 2021)](https://arxiv.org/abs/2110.04627)
+  - Same idea a VQ-GAN, but Vision Transformers (ViT) are used instead of CNNs.
 
 ## Chapter 11: Music Generation
 
