@@ -58,6 +58,9 @@ Some related repositories of mine:
     - [List of papers and links](#list-of-papers-and-links)
   - [Chapter 9: Transformers](#chapter-9-transformers)
     - [Key points](#key-points-8)
+      - [Data Preprocessing](#data-preprocessing)
+      - [Architecture Building Blocks](#architecture-building-blocks)
+      - [ChatGPT and Reinforcement Learning from Human Feedback (RLHF)](#chatgpt-and-reinforcement-learning-from-human-feedback-rlhf)
     - [Notebooks](#notebooks-6)
     - [List of papers and links](#list-of-papers-and-links-1)
   - [Chapter 10: Advanced GANs](#chapter-10-advanced-gans)
@@ -687,11 +690,82 @@ In the notebook, the Oxford 102 flowers dataset is used, which consists of 8k fl
 
 ## Chapter 9: Transformers
 
+Check my through explanation of how Transformers work, done in [mxagar/nlp_with_transformers_nbs](https://github.com/mxagar/nlp_with_transformers_nbs).
+
+This chapter introduces the same topic, but:
+
+- it focuses on the Generator/Decoder part of the Transformer architecture (while the notes from the link focus on the Encoder part),
+- and it uses Keras to build a model (while the notes from the link use Pytorch).
+
 ### Key points
+
+Until 2017, LSTMs were the default architecture to deal with sequential data. Then, the Transformer architecture was presented by Vaswani et al. and everything changed.
+
+The Transformer architecture is remarkable because:
+
+- It is quite a simple architecture (mostly composed of linear/dense layers), which leverages the attention mechanism very succesfully.
+- It can process sequences at once, in contrast to LSTMs, which need to process the data sequentially. Therefore, Transformers are easily parallelizable.
+- It has shown a remarkable performance when scaled in terms of size (number of parameters) and training data.
+
+The complete Transformer architecture has two parts:
+
+- The Encoder, which takes token sequences and encodes them into embedding vectors of a given size. These embedding vectors are often called contextualized embeddings.
+- The Decoder, which takes its own generated output tokens (starting with `<start>`) and generates the next token, which can be appended to the output sequence to be fed to the Decoder again.
+
+![Transformer Architecture (Vaswani et al., 2017)](./assets/transformer_architecture.png)
+
+The Transformer works in summary as follows:
+
+- We tokenize an input sequence.
+- The input sequence is transformed to embedding vectors; positional embedding vectors are added, too. These can be pre-computed sinusoidal (originally) or learned (used nowadays in practice).
+- These embedding vectors are continuously transformed in `N` transformer blocks to become output or contextualized embeddings; note that the size of those embeddings is the same as in the beginning, but  their values have been changed.
+- In each of the `N` blocks, several simple operations/layers are applied:
+  - Attention layer
+  - Concatenatation
+  - Addition, with skip connections
+  - Normalization
+  - Linear or feed-forward mappings
+
+The **attention** mechanism/layer consists in weighting the relevance of the embedding vectors in the sequence. To that end, the embedding vectors of the sequence are linearly mapped to Query, Key and Value vectors, which are used to compute vector similarities
+
+We can distinguish two types of attention mechanisms in the Transformer:
+
+- *Self-referential* attention: when all similarities are computed using the embedding vectors from the input sequence (Encoder).
+- *Cross-referential* attention: when the similarities are computed using, in part, vectors (Query) which come from another source than the input sequence (Decoder).
+
+We can use different parts of the Transformer:
+
+- The Encoder only (e.g., BERT), to generate sequence embeddings, which can be used for downstream tasks, such as sequence classification or token classification. If the Encoder is trained separately, the sequence text is shown to the architecture with a masked token which needs to be predicted. This scheme is called **masked language modeling**.
+- The Decoder only (e.g., GPT), to generate text given an an input sequence (prompt). If the Decoder is trained separately, we compared its outputs to a reference text. Additionally, in the attention layer we apply **causal masking** to hide future words/tokens, otherwise it would not learn.
+- The full Encoder-Decoder architecture (e.g., T5), for text-to-text tasks, such as summarization and translation.
+
+If the full Transformer is used, the contextualized embeddings that are the output from the Encoder are inserted into the middle of the Decoder. In that process, they first are mapped to be the Key and Value vectors; meanwhile, the Query vectors in the decoder are computed from the Decoder inputs.
+
+This chapter implements a reduced version of the GPT (Generative Pre-Trained Transformer), which is the Decoder part.
+
+#### Data Preprocessing
+
+
+
+#### Architecture Building Blocks
+
+![Transformer Architecture Components](./assets/Transformer_Architecture_Components.png)
+
+#### ChatGPT and Reinforcement Learning from Human Feedback (RLHF)
+
+TBD.
 
 ### Notebooks
 
 ### List of papers and links
+
+- Transformer (Vaswani et al., 2017): [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+- BERT (Devlin, 2018): [BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding](https://arxiv.org/abs/1810.04805)
+- T5 (Raffel et al., 2019 - Google): [Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer](https://arxiv.org/abs/1910.10683)
+- GPT-1 (Radford et al., 2018): [Improving Language Understanding by Generative Pre-Training](https://openai.com/index/language-unsupervised/)
+- GPT-2 (Radford et al., 2019): [Language Models are Unsupervised Multitask Learners](https://openai.com/index/better-language-models/)
+- GPT-3 (Brown et al., 2020): [Language Models are Few-Shot Learners](https://arxiv.org/abs/2005.14165)
+- InstructGPT, ChatGPT RLHF (Ouyang et al., 2022): [Training language models to follow instructions with human feedback](https://arxiv.org/abs/2203.02155)
 
 ## Chapter 10: Advanced GANs
 
