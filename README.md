@@ -61,11 +61,14 @@ Table of contents:
     - [List of papers and links](#list-of-papers-and-links-1)
   - [Chapter 10: Advanced GANs](#chapter-10-advanced-gans)
     - [Key points](#key-points-9)
-    - [Notebooks](#notebooks-7)
     - [List of papers and links](#list-of-papers-and-links-2)
   - [Chapter 11: Music Generation](#chapter-11-music-generation)
   - [Chapter 12: World Models](#chapter-12-world-models)
+    - [Key points](#key-points-10)
+    - [List of papers and links](#list-of-papers-and-links-3)
   - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
+    - [Key points](#key-points-11)
+    - [List of papers and links](#list-of-papers-and-links-4)
   - [Chapter 14: Conclusion](#chapter-14-conclusion)
   - [License](#license)
 
@@ -695,18 +698,42 @@ In the notebook, the Oxford 102 flowers dataset is used, which consists of 8k fl
 
 ### Key points
 
-### Notebooks
-
 ### List of papers and links
 
 ## Chapter 11: Music Generation
 
+I skipped this chapter, since I am currently not that interested in the topic.
+
+Broadly, two approached for music generation are presented (each with associated notebooks):
+
+- [OpenAI's MuseNet](https://openai.com/index/musenet/): a Transformer architecture which learns to predict the next note (i.e., equivalent to a token) in a sequence based on the previous ones.
+- [MuseGAN](https://arxiv.org/abs/1709.06298): a GAN which generates entire musical tracks at once by treating music as images (pitch vs. time).
+
+One important aspect is that music has special characteristcis:
+
+- We need to create pitch and rhythm.
+- It can be monophonic (e.g., MIDI files) vs. polyphonnic (i.e., several streams of notes played simultaneously by different instruments).
+- Polyphonic music creates harmonies, which can be dissonant (clashing) or consonant (harmonious).
+
+Notebooks:
+
+- [`transformer.ipynb`](./notebooks/11_music/01_transformer/transformer.ipynb)
+- [`musegan.ipynb`](./notebooks/11_music/02_musegan/musegan.ipynb)
+
 ## Chapter 12: World Models
+
+### Key points
+
+### List of papers and links
 
 - World Models paper (Ha and Schmidhuber, 2018): [World Models](https://arxiv.org/abs/1803.10122)
   - [WorldModels Github](https://github.com/zacwellmer/WorldModels)
 
 ## Chapter 13: Multimodal Models
+
+### Key points
+
+### List of papers and links
 
 - CLIP (Radford et al., 2021)[Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020)
 - Dalle 2 (Ramesh et al., 2022): [Hierarchical Text-Conditional Image Generation with CLIP Latents](https://cdn.openai.com/papers/dall-e-2.pdf)
