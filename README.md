@@ -745,17 +745,72 @@ This chapter implements a reduced version of the GPT (Generative Pre-Trained Tra
 
 #### Data Preprocessing
 
+The [Kaggle Wine Reviews](https://www.kaggle.com/datasets/zynicide/wine-reviews) dataset is used: 130k wine reviews/descriptions + metadata (price, country, points, etc.).
 
+The processing is as follows:
+
+- Load dataset and concatenate text columns (description + country, etc.)
+- Pad punctuation and whitespaces.
+- Pass processed text to `TextVectorization`, which tokenizes it.
+- Create splits of tokenized text pairs: input and ouput; output tokens are shifted one token.
 
 #### Architecture Building Blocks
 
 ![Transformer Architecture Components](./assets/Transformer_Architecture_Components.png)
+
+The Transformer is composed by `N` `TransformerBlock`s (`N = 12` for BERT). Each `TransformerBlock` contains:
+
+- In the beginning, `TokenAndPositionEmbedding`; this layer adds positional embeddings of the tokens. Since token embeddings are summed in the attention layer to generate new embeddings, positional information is lost if no positional data is added explicitly.
+- A `MultiHeadAttention` layer.
+- Layer normalization (2x).
+- Feed-forward (dense) layers.
+- Skip connections; these enable deeper networks, while avoiding the gradient vanishing problem.
+
+A `MultiHeadAttention` layer is where the **attention** mechanism is applied. It is multi-head because `M` attention blocks (`M = 12` in BERT) are inside, where each ouputs a fraction of the embedding vectors and then all are concatenated.
+
+In each of the `M` (self-) attention layers, the sequence of input embeddings is mapped to three 3D tensors `Q, K, V` using three separate dense layers `W_Q, W_K, W_V`. These tensors keep two of the input sequence dimensions `(batch_size, seq_len)`, while the third hidden size dimension might vary:
+
+- `Q`, Queries: it represents the task at hand, i.e., find the missing/next token. 
+  - In the case of the Encoder, the `Q` tensor comes from the input sequence itself.
+  - In the case of the Decoder, the `Q` tensor is formed by the output sequence that is being generated autoregressively.
+- `K`, Keys: it represents the tokens in the input sequence.
+  - The tensors `Q` and `K` are used to compute the similarities between the token representations. This is the attention.
+- `V`, Values: unweighted contributions of each token in the input sentence into the ouput.
+  - The output of the attention layer is basically `V` scaled by the similarity weights between `Q` and `K`.
+
+The **layer normalization** provides stability during the training process, as batch normalization; both have similar formulas (`x` vectors centered and scaled with mean and variance, and we have 2 learnable parameters), but they are different:
+
+- Batch normalization
+  - Mean and variance are computed with the activations for the complete batch and per feature `x_i`.
+  - It dependes on the batch size, so it is computationally more expensive.
+  - Provides stability in training.
+  - Used commonly in CNNs.
+- Layer normalization
+  - Mean and variance are computed for each data point (sample `x`) independently, considering all features within a single layer (e.g., for each token in a transformer).
+  - It is independent from the batch size, so it is generally faster.
+  - Provides stability in training.
+  - Used commonly in Transformers, for sequential data.
 
 #### ChatGPT and Reinforcement Learning from Human Feedback (RLHF)
 
 TBD.
 
 ### Notebooks
+
+Everything is implemented in [`gpt.ipynb`](./notebooks/09_transformer/gpt/gpt.ipynb).
+
+A reduced version of the Transformer-Decoder is used, with `M = 4` (number of heads) and `N = 1` (number of blocks). The rest of the hyperparameters related to the architecture is the following:
+
+```python
+VOCAB_SIZE = 10000
+MAX_LEN = 80
+EMBEDDING_DIM = 256
+KEY_DIM = 256
+N_HEADS = 2
+FEED_FORWARD_DIM = 256
+BATCH_SIZE = 32
+EPOCHS = 5
+```
 
 ### List of papers and links
 
