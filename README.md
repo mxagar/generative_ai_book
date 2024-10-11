@@ -961,10 +961,91 @@ Notebooks:
 
 ### Key points
 
+This chapter is about the World Models paper (Ha and Schmidhuber, 2018): [World Models](https://arxiv.org/abs/1803.10122). No notebook is provided, but there is an official repository we can check: [WorldModels Github](https://github.com/zacwellmer/WorldModels).
+
+The paper showed that it is possible to train a model to **learn how to perform a task through experimentation in its own particular dream environment!** The dream environment is basically a generative environment.
+
+Reinforcement Learning is used, with its usual components:
+
+- Environment: world, physics/game engine; it behaves according to some rules and dictates the reward.
+- Agent: takes actions in the environment and receives rewards depending on the objective of the game. In the beginning, actions are random and yield bad rewards. The model in the agent is improved to generate better actions which optimize the accumulated reward.
+- Game state, and/or observation, `s`.
+- Action, `a`.
+- Reward, `r`.
+- Episode: one run of the agent in the environment, from begining to game end.
+
+[Gymnasium](https://gymnasium.farama.org/index.html) is used with a **car racing** scenario, which is a maintained fork from the OpenAI's Gym, not developed anymore.
+
+- Game state, `s`: 64x64 RGB image of the track + car; the track is made by pavement `N` tiles, which are not visible, but pave the way.
+- Action, `a`: 3 floats: direction `[-1,1]`, acceleration `[0,1]`, braking `[0,1]`.
+- Reward, `r`:
+  - `-0.1` for each time step taken
+  - `1000/N` if new track tile is stepped, where `N` is the total number of tiles of the track.
+- Episode: game finishes if
+  - 3000 steps
+  - car drives off the limit
+  - car reaches the end
+
+The implicit goal is for the car to drive the track to the end.
+
+The architecture is composed by the following elements:
+
+- The observations are processed by a **VAE** to generate latent `z` vectors of 32D; in reality 2 latent vectors are generated, i.e., `mu` and `logvar`, which are then sampled as if they describe a Gaussian to obtain `z`.
+  - The VAE is trained in an unsupervised manner, simply inputing step images and using the reconstruction loss.
+- The latent `z` vector is the input to a **RNN** which, given `z`, the action and the previous reward, predicts the next state and reward using a mixture density network (MDN) as head.
+  ```
+  r_(t-1), z_t (mu, logvar), a_t -> [MDN-RNN] -> z_(t+1) (mu, logvar, logpi), r_t
+  ```
+  - A MDN is used because we want to predict the distribution of next latent state.
+    - With an MDN we can predict probability distributions, rather than concrete values.
+    - Environment dynamics is often multi-modal (i.e., there exist several possible future states), and a MDN models that.
+    - Using MDNs helps model the stochasticity of the environment.
+  - The hidden state `h` dimension of the LSTM is 256.
+  - This hidden state `h` models the environment state and dynamics.
+  - The MDN outputs: 
+    - 5 basis distributions, each with three vectors of size 32: `mu`, `logvar` and `logpi` (probability of the distrinbution of being chosen)
+    - and one value for the reward.
+  - Thus, the output form the hidden vector of `256` units is mapped to size is `32 x 3 + 1 = 481` using a dense layer.
+  - Then, one `z` value can be sampled from the `32 x 3` distributions.
+  - The MDN-RNN is trained in a supervised manner, simply using experimented game steps.
+- The **Controller** is the agent that decides the action, aka. the **Policy Network**; it is a simple dense layer which maps the current state `z` and the hidden state `h` to the action `a` that needs to be taken:
+  ```
+  z_t, h -> [Controller] -> a
+  ```
+  - The input size is `32 + 256 = 288` and the output `3`.
+    - The dense layer has `288 x 3 + 3 (bias) = 867` parameters.
+  - The Controller is trained with the **Covariance Matrix Adaptation Evolutionary Strategy (CMA-ES)**, i.e., not in a un/supervised way.
+    - RL algorithms are often trained with evolutionary algorithms, because there is no clear loss function which can be used to propagate an error.
+ 
+Training protocol:
+
+- Collect random episode data.
+- Train the VAE.
+- Train the MDN-RNN.
+- Train the Controller.
+
+To train the Controller, the **Covariance Matrix Adaptation Evolutionary Strategy (CMA-ES)** is used:
+
+- The Controller is a dense/linear layer with 867 parameters which maps `z_t, h` (288D) to `a` (3D). We want to optimize those parameters `theta` for maximum reward, but there is no clear loss/error.
+- We create a population of several `theta` parameter sets; in the beginning, they are randomly initialized. Each `theta` set is basically an instance of an agent with a specific controller.
+- We let all the agents run the simulation and collet the results (rewards); this can be done in parallel!
+- We take the 25% of the best performing agents/controllers.
+  - With them, the mean and variance of the subset of the population is computed.
+- With the subset mean and variance for the parameters, new parameter sets are breeded.
+  - Noise is added, to allow also exploration.
+  - This is like simulating Gradient Descend, but without computing the gradient wrt. any error!
+- The process is repeated until convergence or maximum number of steps.
+
+![Training the Controller in the Gym Environment (by Foster)](./assets/world_models_1.jpg)
+
+Once we have a basic training (VAE and MDN-RNN), the nice thing of the setup is that we can ignore the game engine (the environment) and substitute it with the MDN-RNN model. Then, the Controller can be trained with the MDN-RNN alone, i.e., this is like a **dreaming environment which learns by generating fake but effective/coherent states**! The results were remarkable!
+
+![Training the Controller in the MDN-RNN Dream Environment (by Foster)](./assets/world_models_2.jpg)
+
+
 ### List of papers and links
 
 - World Models paper (Ha and Schmidhuber, 2018): [World Models](https://arxiv.org/abs/1803.10122)
-  - [WorldModels Github](https://github.com/zacwellmer/WorldModels)
 
 ## Chapter 13: Multimodal Models
 
