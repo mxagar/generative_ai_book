@@ -71,7 +71,9 @@ Some related repositories of mine:
     - [Key points](#key-points-9)
     - [List of papers and links](#list-of-papers-and-links-2)
   - [Chapter 13: Multimodal Models](#chapter-13-multimodal-models)
-    - [Key points](#key-points-10)
+    - [CLIP (OpenAI, February 2021)](#clip-openai-february-2021)
+    - [Dalle 2 (OpenAI, April 2022)](#dalle-2-openai-april-2022)
+    - [Other Models](#other-models)
     - [List of papers and links](#list-of-papers-and-links-3)
   - [Chapter 14: Conclusion](#chapter-14-conclusion)
   - [License](#license)
@@ -1049,11 +1051,66 @@ Once we have a basic training (VAE and MDN-RNN), the nice thing of the setup is 
 
 ## Chapter 13: Multimodal Models
 
-### Key points
+In this chapter, no notebooks are provided, but a high level explanation of papers/works in which several modalities (images, text, etc.) are combined in the context of generative AI.
+
+### CLIP (OpenAI, February 2021)
+
+CLIP (Radford et al., 2021) is a model which learns the representation of images and texts (captions) in the same latent space, presented in the paper [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020):
+
+- CLIP is not a generative model, but it is used in Dalle 2, which is a text-to-image generative model.
+- CLIP was trained with 400 million image-caption pairs scraped from the Internet; ImageNet has 14 million hand-annotated images.
+- CLIP is composed by two encoders:
+  - Text encode: Transformer-Encoder which encodes text captions into a sequence of embedding vectors.
+  - Image encoder: Vision Transformer which encodes images into embedding vectors. In a Vision Transformer, an image is broken down to image patches, equivalent to tokens; each patch is then encoded to a embedding using CNNs, and then the typical Transformer-Encoder architecture follows.
+- For each output sequence, the first token embedding is taken (`[CLS]` or classification token), because it is expected for it to be the summary of the image/text.
+- During training, the ouput embedding pairs are compared with cosine similarity:
+  - Real pairs should yield a large dot product.
+  - Fake pairs should yield a small dot product.
+  - Contrastive learning is applied, using the similarity values.
+- As a result, the text and image embeddings belong to the same latent space.
+
+![CLIP (Foster)](./assets/clip.jpg)
+
+The remarkable thing of CLIP is that it can perform SoTA zero-shot image classification! Other models trained on specific datasets often fail! Procedure:
+
+- We take out dataset.
+- If we have `L` classification labels, we create a set of `L` text embedding vectors for the texts `this is a photo o a {label}`, passing them to the text encoder. This will be a fixed set of *text label embeddings*.
+- Then, we take an image, obtain its image embedding, and compute the cosine similarity against all the *text label embeddings*.
+- The largest dot product predicts the class!
+
+The model is open source: 
+
+- [openai/CLIP](https://github.com/openai/CLIP)
+- [huggingface.co/openai/clip-vit-base-patch32](https://huggingface.co/openai/clip-vit-base-patch32)
+
+### Dalle 2 (OpenAI, April 2022)
+
+Dalle 2 is a text-to-image paper which consists of these components:
+
+- **CLIP** to convert texts (prompt image descriptions) into text emebddings. CLIP weights are frozen.
+- A **prior network** which converts the text embedding into an image embedding. Even though both image and text embeddings should be aligned, the CLIP embeddings cannot be used to generate images out-of-the-box:
+  - CLIP embeddings are discriminative, not generative: an image contains much more information than the description of its caption (style, texture, background, etc.). That is discarded by a discriminative task (alignement of embeddings).
+- A **Decoder** model based on the Diffusion model GLIDE which converts the image embedding into the image.
+
+
+
+Papers:
+
+- Dalle 2 (Ramesh et al., 2022): [Hierarchical Text-Conditional Image Generation with CLIP Latents](https://cdn.openai.com/papers/dall-e-2.pdf)
+- GLIDE (Nichol et al., 2021): [GLIDE: Towards Photorealistic Image Generation and Editing with Text-Guided Diffusion Models](https://arxiv.org/abs/2112.10741)
+
+
+
+### Other Models
+
+- IMAGEN (Saharia et al., 2022): [Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
+- Stable Diffusion (Rombach et al., 2021): [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
+- Flamingo (Alayrac et al., 2022): [Flamingo: a Visual Language Model for Few-Shot Learning](https://arxiv.org/abs/2204.14198)
+
 
 ### List of papers and links
 
-- CLIP (Radford et al., 2021)[Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020)
+- CLIP (Radford et al., 2021): [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020)
 - Dalle 2 (Ramesh et al., 2022): [Hierarchical Text-Conditional Image Generation with CLIP Latents](https://cdn.openai.com/papers/dall-e-2.pdf)
 - GLIDE (Nichol et al., 2021): [GLIDE: Towards Photorealistic Image Generation and Editing with Text-Guided Diffusion Models](https://arxiv.org/abs/2112.10741)
 - IMAGEN (Saharia et al., 2022): [Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
