@@ -1133,16 +1133,24 @@ Papers:
 
 ### Other Models
 
-- IMAGEN (Saharia et al., May 2022): [Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
+- **IMAGEN** (Saharia et al., May 2022): [Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
   - Very similar to Dalle 2, but from Google.
   - No CLIP used; instead, a Transformer Encoder-Decoder (T5) is used to generated text embeddings, and the model is trained only on text.
   - Decoding diffusion is similar, but conditining is done only with text embeddings.
-- Stable Diffusion (Rombach et al., August 2022): [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
+
+- **Stable** Diffusion (Rombach et al., August 2022): [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
   - From Munich! LMU and Runway
   - **In contrast to Dalle 2 and Imagen, the code and weights of Stable Diffusion are open source!**
-  - 
-  - Example repository: []()
-- Flamingo (Alayrac et al., 2022): [Flamingo: a Visual Language Model for Few-Shot Learning](https://arxiv.org/abs/2204.14198)
+  - It is very similar to Dalle 2; the main difference is that they added an autoendocer to the Diffision process:
+    - We have CLIP (although it was later replaced by OpenCLIP, trained from scratch in Stable Diffusion 2) to produce CLIP image and text embeddings.
+    - We have the Diffusion prior to generate CLIP image embeddings from CLIP text embeddings.
+    - The Diffusion decoder works on a latent space (2D), i.e., we have a VAE which has learned to compress and reconstruct images; thus, the Diffusion decoder denoises a random latent vector conditioned by the CLIP text and image embeddings. When the latent representation is denoised, it is passed to the VAE-Decoder to reconstruct the image.
+    - Therefore, the U-Net of the Diffusion model is much lighter!
+  - Example repository: [Keras: A walk through latent space with Stable Diffusion](https://keras.io/examples/generative/random_walks_with_stable_diffusion/)
+
+- **Flamingo** (Alayrac et al., April 2022): [Flamingo: a Visual Language Model for Few-Shot Learning](https://arxiv.org/abs/2204.14198)
+  - Family of Vision-Language Models (VLM) that act as a bridge between pre-trained vision-only and language-only models.
+  - Flamingo blends image and text information in a multi-modal style; teh user is able to ask questions about an image and the model answers, as if it were understanding and *reasoning*.
 
 ### List of papers and links
 
