@@ -1092,21 +1092,57 @@ Dalle 2 is a text-to-image paper which consists of these components:
   - CLIP embeddings are discriminative, not generative: an image contains much more information than the description of its caption (style, texture, background, etc.). That is discarded by a discriminative task (alignement of embeddings).
 - A **Decoder** model based on the Diffusion model GLIDE which converts the image embedding into the image.
 
+Two types of **prior networks** were tried:
 
+- **Autoregressive prior**: Encoder-Decoder Transformer which translates a CLIP text embedding into a CLIP image embedding.
+  - The Encoder transforms the text embedding first; then, the transformed representation is passed to the Decoder (`K, V`).
+  - The Decoder produces autoregressively one image embedding element value at a time: the previous vector values are used as input, and the Encoder representation is fed into the cross-attention layer.
+  - As a result, a CLIP image embedding is generated.
+  - This approach is worse than the diffusion prior, among others, because it works autoregressively, i.e., it's slower.
+- **Diffusion prior**: A Decoder-Transformer is used in a diffusion process (instead of a U-Net) to obtain the CLIP image embedding from the CLIP text embedding.
+  - This approach works better than the previous one.
+  - During training, forward diffusion is applied to the CLIP image embedding: we add noise to the embedding in `T` steps.
+    - For each step, a Transformer-Decoder is used to predict the added noise vector.
+    - The Decoder is conditioned by the text embedding every time, i.e., we pass as external contextualized embeddings `K` and `V`, which are the result of mapping the text embedding with `W_K` and `W_V`.
+  - During inference, we start with a random noise vector (to become he CLIP image embedding) and the CLIP text embedding.
+    - We run the reverse diffusion process, i.e., we predict the step noise vector with the trained Transformer-Decoder step-by-step and progressively "clean" the CLIP image embedding.
+
+The final model, the **Decoder**, is a U-Net model which creates the CLIP image embedding. The architecture is based on GLIDE (Nichol et al., 2021), a previous model from OpenAI which was able to create images from raw prompts, i.e., without CLIP embeddings.
+
+In Dalle 2, the Decoder uses 
+
+- (the random noise vector)
+- the U-Net denoiser from GLIDE
+- the Transformer text encoder
+- and the predicted CLIP image embedding as conditioning.
+
+The output of the Decoder is a `64 x 64` image; then, this image is passed through 2 **Upsampler** models which run a diffusion process to create first `256 x 256` images, and finally `1024 x 1024` images.
+
+Notes:
+
+- The fact that we use a random noise vector in the beggining of the Decoder, makes possible to generate variations of the same prompt!
+- It is possible to work without the prior network, but the best results are generated with it!
+- The image qualities are remarkable, but 
+  - *attribute binding* fails, i.e., spatial and relational properties are not properly depicted in the image
+  - and text cannot be reproduced.
 
 Papers:
 
-- Dalle 2 (Ramesh et al., 2022): [Hierarchical Text-Conditional Image Generation with CLIP Latents](https://cdn.openai.com/papers/dall-e-2.pdf)
+- Dalle 2 (Ramesh et al., April 2022): [Hierarchical Text-Conditional Image Generation with CLIP Latents](https://cdn.openai.com/papers/dall-e-2.pdf)
 - GLIDE (Nichol et al., 2021): [GLIDE: Towards Photorealistic Image Generation and Editing with Text-Guided Diffusion Models](https://arxiv.org/abs/2112.10741)
-
-
 
 ### Other Models
 
-- IMAGEN (Saharia et al., 2022): [Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
-- Stable Diffusion (Rombach et al., 2021): [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
+- IMAGEN (Saharia et al., May 2022): [Photorealistic Text-to-Image Diffusion Models with Deep Language Understanding](https://arxiv.org/abs/2205.11487)
+  - Very similar to Dalle 2, but from Google.
+  - No CLIP used; instead, a Transformer Encoder-Decoder (T5) is used to generated text embeddings, and the model is trained only on text.
+  - Decoding diffusion is similar, but conditining is done only with text embeddings.
+- Stable Diffusion (Rombach et al., August 2022): [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752)
+  - From Munich! LMU and Runway
+  - **In contrast to Dalle 2 and Imagen, the code and weights of Stable Diffusion are open source!**
+  - 
+  - Example repository: []()
 - Flamingo (Alayrac et al., 2022): [Flamingo: a Visual Language Model for Few-Shot Learning](https://arxiv.org/abs/2204.14198)
-
 
 ### List of papers and links
 
