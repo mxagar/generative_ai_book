@@ -2,7 +2,7 @@
 
 These are my notes of the book [Generative Deep Learning, 2nd Edition, by David Foster (O'Reilly)](https://www.oreilly.com/library/view/generative-deep-learning/9781098134174/).
 
-![Book Cover](./img/book_cover.jpg)
+![Book Cover](./img/book_cover.png)
 
 This repository is a fork of the [official book repository](https://github.com/davidADSP/Generative_Deep_Learning_2nd_Edition). I modified the notebook contents and moved the original `README.md` to [README_ORG.md](README_ORG.md).
 
